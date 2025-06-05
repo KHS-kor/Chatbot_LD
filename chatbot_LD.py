@@ -88,6 +88,8 @@ while True:                              # 무한 반복으로 사용자와의 �
 
 """
 # (변경전) TF-IDF와 Consine Similarlity 기반 챗봇
+# -----------------------------------------------------------------------------------------------------------------
+
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -124,5 +126,5 @@ while True:
         break
     response = chatbot.find_best_answer(input_sentence)
     print('Chatbot:', response)
-    
+# -----------------------------------------------------------------------------------------------------------------    
 """
