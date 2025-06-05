@@ -1,13 +1,10 @@
-# 레벤슈타인 거리 기반 챗봇 구현 리포트
-
-변경후 -------------------------------------------------------------------------
-# (변경후) 레벤슈타인거리 기반 챗봇(Chatbot based on Levenshtein Distance)_2025.06.05 작성자: 김형석 (학번 202430896)
-# ----------------------------------------------------------------------------------------------------------------
+# (변경후) 레벤슈타인 거리 기반 챗봇(Chatbot based on Levenshtein Distance)_2025.06.05 작성자: 김형석 (학번 202430896)
+# -----------------------------------------------------------------------------------------------------------------
 # 레벤슈타인 거리(Levenshtein Distance) 기반에서는 입력 문장을 벡터화할 필요가 없습니다. 이유는 다음과 같습니다.
 # 레벤슈타인 거리는 '문자 단위의 편집 거리(삽입, 삭제, 교체)'를 직접 계산하므로, 벡터화가 불필요합니다.
 # 즉, "학교에 간다"와 "학교로 간다"의 레벤슈타인 거리는 '에' → '로'의 차이이므로 거리는 1입니다.
 # 이는 문자 혹은 문자열 비교에 기반하므로 수치화하는 벡터화가 요구되지 않습니다.
-# ----------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------
 
 import pandas as pd  # CSV 파일을 처리하기 위한 라이브러리
 # from sklearn.feature_extraction.text import TfidfVectorizer  # (삭제) TF-IDF 벡터화용 모듈
@@ -89,98 +86,43 @@ while True:                              # 무한 반복으로 사용자와의 �
 
 
 
-
-
-
-
-
-변경전 -------------------------------------------------------------------------
-## TF-IDF와 Cosine Similarity를 이용한 챗봇 구현
-- 학습 데이터 셋 출처: (https://github.com/songys/Chatbot_data)
-![1](./images/1.png)
-
-- TF-IDF 벡터화와 Cosine Similarity
-- scikit-learn 설치
-
-```
-pip install scikit-learn
-```
-
-- cosine_similarity.py
-
-```
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-# TfidfVectorizer 객체 생성
-vectorizer = TfidfVectorizer()
-
-# 한국어 문장들
-sentence1 = "저는 오늘 밥을 먹었습니다."
-sentence2 = "저는 어제 밥을 먹었습니다."
-
-# 문장들을 벡터화
-tfidf_matrix = vectorizer.fit_transform([sentence1, sentence2])
-
-# 문장1과 문장2의 코사인 유사도 계산
-cosine_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
-
-print(f"문장 1: {sentence1}")
-print(f"문장 2: {sentence2}")
-print(f"두 문장의 코사인 유사도: {cosine_sim[0][0]}")
-
-```
-
-- 챗봇 구현
-
-- chatbot.py 
-
-```
+"""
+# (변경전) TF-IDF와 Consine Similarlity 기반 챗봇
 import pandas as pd
-
-# sklearn라는 머신러닝 라이브러리에서 TfidfVectorizer와 cosine_similarity를 불러옴
-# TfidfVectorizer는 문서의 텍스트 데이터를 벡터 형태로 변환하는데 사용하며, cosine_similarity는 두 벡터 간의 코사인 유사도를 계산
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# 챗봇 클래스를 정의
 class SimpleChatBot:
-    # 챗봇 객체를 초기화하는 메서드, 초기화 시에는 입력된 데이터 파일을 로드하고, TfidfVectorizer를 사용해 질문 데이터를 벡터화함
     def __init__(self, filepath):
         self.questions, self.answers = self.load_data(filepath)
         self.vectorizer = TfidfVectorizer()
-        self.question_vectors = self.vectorizer.fit_transform(self.questions)
+        self.question_vectors = self.vectorizer.fit_transform(self.questions)  # 질문을 TF-IDF로 변환하여 벡터화함.
 
-    # CSV 파일로부터 질문과 답변 데이터를 불러오는 메서드
     def load_data(self, filepath):
         data = pd.read_csv(filepath)
-        questions = data['Q'].tolist()
-        questions = data['A'].tolist()
+        questions = data['Q'].tolist()  # 질문열만 뽑아 파이썬 리스트로 저장
+        answers = data['A'].tolist()    # 답변열만 뽑아 파이썬 리스트로 저장
         return questions, answers
 
-    # 입력 문장에 가장 잘 맞는 답변을 찾는 메서드, 입력 문장을 벡터화하고, 이를 기존 질문 벡터들과 비교하여 가장 높은 유사도를 가진 질문의 답변을 반환함
     def find_best_answer(self, input_sentence):
-        # 사용자 입력 문장을 벡터화
         input_vector = self.vectorizer.transform([input_sentence])
-        # 사용자 입력 벡터와 기존 질문 벡터들 간의 코사인 유사도를 계산
-        similarities = cosine_similarity(input_vector, self.question_vectors)
-        # 가장 유사도가 높은 질문의 인덱스를 찾음
-        best_match_index = similarities.argmax()
-        # 가장 유사한 질문에 해당하는 답변을 반환
+        similarities = cosine_similarity(input_vector, self.question_vectors) # 벡터화한 질문을 전체 질문 중 코사인 유사도 값들을 리스트에 저장
+        
+        best_match_index = similarities.argmax()   # 유사도 값이 가장 큰 값의 인덱스를 반환
         return self.answers[best_match_index]
 
-# 데이터 파일의 경로를 지정합니다.
+# CSV 파일 경로를 지정하세요.
 filepath = 'ChatbotData.csv'
 
-# 챗봇 객체를 생성합니다.
+# 간단한 챗봇 인스턴스를 생성합니다.
 chatbot = SimpleChatBot(filepath)
 
-# '종료'라는 입력이 나올 때까지 사용자의 입력에 따라 챗봇의 응답을 출력하는 무한 루프를 실행합니다.
+# '종료'라는 단어가 입력될 때까지 챗봇과의 대화를 반복합니다.
 while True:
     input_sentence = input('You: ')
     if input_sentence.lower() == '종료':
         break
     response = chatbot.find_best_answer(input_sentence)
     print('Chatbot:', response)
-
-```
+    
+"""
